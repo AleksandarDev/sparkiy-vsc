@@ -24,7 +24,7 @@ _This extension is inteded for documentation contributors only._
 - Pressing F5 will open new instance of Visual Studio Code with extension enabled
 - Navigating to sparkiy project directory will open preview and run the scripts from `Files` folder of sparkiy project
 
-_To reload the sparkiy script (and preview), press CTRL+R_
+_To reload the sparkiy script (and preview), press CTRL+R in extension VSC instance_
 
 ## Known Issues
 
