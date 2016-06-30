@@ -11,7 +11,7 @@ _This extension is inteded for documentation contributors only._
 - Integrated LUA VM
 - Uses WebGL to render visuals  
 
-\!\[feature X\]\(images/feature-x.png\)
+\!\[feature X\]\(docs/ExamplePreview.PNG\)
 
 ## Requirements
 
