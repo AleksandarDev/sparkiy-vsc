@@ -1,65 +1,41 @@
-# sparkiy-vsc README
+# sparkiy-vsc 
 
-This is the README for your extension "sparkiy-vsc". After writing up a brief description, we recommend including the following sections.
+Visual Studio Code preview provider extension for sparkiy.
+
+_This extension is inteded for documentation contributors only._ 
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-
-For example if there is an image subfolder under your extension project workspace:
+- Auto-detect sparkiy projects (opens the preview pane)
+- Run sparkiy scripts right from the Visual Studio Code editor
+- Integrated LUA VM
+- Uses WebGL to render visuals  
 
 \!\[feature X\]\(images/feature-x.png\)
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
-
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+- Latest version of Visual Studio Code
 
-## Extension Settings
+## Usage
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+- Close this repository
+- Open the repository directory with Visual Studio Code
+- Pressing F5 will open new instance of Visual Studio Code with extension enabled
+- Navigating to sparkiy project directory will open preview and run the scripts from `Files` folder of sparkiy project
 
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+_To reload the sparkiy script (and preview), press CTRL+R_
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+Rendering is not optimized and will stutter with larger amount of elements.
+
+Not whole sparkiy API is supported in web documentation nor by this extension.
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+### Version 0.0.1
 
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
------------------------------------------------------------------------------------------------------------
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on OSX or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on OSX or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (OSX) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+Initial version; contains basic elements and limited sparkiy API.
 
 **Enjoy!**
