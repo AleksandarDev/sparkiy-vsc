@@ -12,41 +12,46 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Open the sparkiy preview
     let preview = new SparkiyPreview();
-    let disposables = preview.present(absolutePath);
-
-    // Handle disposables
-    disposables.forEach(element => context.subscriptions.push(element));
+    preview.present(absolutePath).then(disposables => {
+        // Handle disposables
+        disposables.forEach(element => context.subscriptions.push(element));
+    }, reason => {
+        console.error("Request rejected with reason: ");
+        console.error(reason);
+    });
 }
 
 export default class SparkiyPreview {
     private uri: vscode.Uri;
     private enginePath: string;
+    private provider: SparkiyScriptPreviewContentProvider;
 
-    public present(enginePath: string): vscode.Disposable[] {
+    public present(enginePath: string): Thenable<vscode.Disposable[]> {
         // Retrieve script name and construct preview URI
-        this.uri = SparkiyPreview.constructPreviewUri();
+        this.uri = SparkiyPreview.constructPreviewUri();        
 
-        // Instantiate preview provider and assign scheme
-        let provider = new SparkiyScriptPreviewContentProvider(enginePath);
-        let registration = vscode.workspace.registerTextDocumentContentProvider(SparkiyScriptPreviewContentProvider.scheme, provider);
+        return new Promise((resolve, reject)=> {
+            vscode.workspace.findFiles("**/*.script.lua", "").then(files => {
+                // Populate the scripts paths collection
+                let scriptsPaths: string[] = [];
+                files.forEach(scriptUri => scriptsPaths.push(scriptUri.fsPath));
 
-        vscode.workspace.findFiles("**/*.script.lua", "").then(files => {
-            files.forEach(scriptUri => {
-                let scriptPath = scriptUri.fsPath;
-                fs.readFile(scriptPath, (error, data) => {
-                    console.log(data);
-                });
+                // Instantiate preview provider and assign scheme
+                this.provider = new SparkiyScriptPreviewContentProvider(enginePath, scriptsPaths);
+                let registration = vscode.workspace.registerTextDocumentContentProvider(SparkiyScriptPreviewContentProvider.scheme, this.provider);
+
+                // Show the preview
+                vscode.commands
+                    .executeCommand('vscode.previewHtml', this.uri, vscode.ViewColumn.Two)
+                    .then((success) => {}, (reason) => {
+                        vscode.window.showErrorMessage(reason);
+                    });
+
+                resolve([registration]);
+            }, rejectReason => {
+                reject(rejectReason);
             });
         });
-
-        // Show the preview
-        vscode.commands
-            .executeCommand('vscode.previewHtml', this.uri, vscode.ViewColumn.Two)
-            .then((success) => {}, (reason) => {
-                vscode.window.showErrorMessage(reason);
-            });
-
-        return [registration];
     }
 
     static constructPreviewUri(): vscode.Uri {
@@ -66,9 +71,11 @@ export default class SparkiyPreview {
 export class SparkiyScriptPreviewContentProvider implements vscode.TextDocumentContentProvider {
     static scheme = "sparkiy-preview";
     private enginePath: string;
+    private scriptsPaths: string[];
 
-    constructor(enginePath: string) {
+    constructor(enginePath: string, scriptsPaths: string[]) {
         this.enginePath = enginePath;
+        this.scriptsPaths = scriptsPaths;
     }
 
     public provideTextDocumentContent(uri: vscode.Uri): string {
@@ -78,7 +85,17 @@ export class SparkiyScriptPreviewContentProvider implements vscode.TextDocumentC
     private createContent(): string {
         let includeScripts: string = "";
         this.getSparkiyEngineIncludes().forEach(includePath => {
-            includeScripts += `<script src="${includePath}"></script>`
+            includeScripts += `<script src="${includePath}"></script>`;
+        });
+        let includeApis: string = "";
+        this.getSparkiyApiIncludes().forEach(includePath => {
+            let content = fs.readFileSync(includePath).toString();
+            includeScripts += `<script type="text/lua">${content}</script>`;
+        });
+        let scripts: string = "";
+        this.scriptsPaths.forEach(element => {
+            let scriptContent = fs.readFileSync(element).toString();
+            scripts += `<script type="text/lua">${scriptContent}</script>`;
         });
 
         return `
@@ -88,13 +105,23 @@ export class SparkiyScriptPreviewContentProvider implements vscode.TextDocumentC
             </style>
             <body>
                 ${includeScripts}
+                ${includeApis}
+                ${scripts}
             </body>`;
     }
 
     private getSparkiyEngineIncludes(): string[] {
         return [ 
+            this.enginePath + "lua.vm.js",
             this.enginePath + "pixi.min.js",
             this.enginePath + "sparkiy.js"
+        ];
+    }
+
+    private getSparkiyApiIncludes(): string[] {
+        return [
+            this.enginePath + "sparkiyApi.lua",
+            this.enginePath + "sparkiyBootstrapper.lua"
         ];
     }
 }
